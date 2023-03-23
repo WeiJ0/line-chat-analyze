@@ -4,7 +4,7 @@
       <div class="container mx-auto flex items-center px-5 md:px-0">
         <h1 class="text-2xl md:text-4xl font-bold text-[#40513B]">Line 聊天紀錄分析</h1>
         <label for="txtUpload" class=" md:text-xl text-center bg-[#EDF1D6] text-[#609966] font-bold ml-5 py-2 px-4 rounded
-                          hover:bg-[#40513B] hover:text-[#EDF1D6] cursor-pointer ease-in duration-300">
+                            hover:bg-[#40513B] hover:text-[#EDF1D6] cursor-pointer ease-in duration-300">
           上傳 txt 檔案</label>
         <input class=" hidden" type="file" name="txtUpload" id="txtUpload" @change="$event => uploadFile($event)">
         <span class="hidden md:block text-white text-lg font-bold ml-auto">By WeiJie</span>
@@ -16,7 +16,10 @@
           '').replace('.txt', '') }} 聊天分析
         </h2>
         <h2 class="text-xl text-center mb-5 font-bold text-[#40513B]" v-else>請先上傳從 Line 匯出 Txt 檔</h2>
-        <h5 class="text-md text-center font-bold">{{ days[0].day }}~{{ days[days.length - 1].day }} ({{ days.length }}天)</h5>
+        <template v-if="days.length">
+          <h5 class="text-md text-center font-bold">{{ days[0].day }}~{{ days[days.length - 1].day }} ({{ days.length }}天)
+          </h5>
+        </template>
         <div class="flex flex-wrap">
           <Count title="總計訊息數量" :result="result.messages" :top="tops.messages" icon="fa-comment-dots" />
           <Count title="總計貼圖數量" :result="result.stickers" :top="tops.stickers" icon="fa-sticky-note" />
