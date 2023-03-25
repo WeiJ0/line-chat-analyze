@@ -1,7 +1,16 @@
-# Vue 3 + Vite
+# Line 聊天分析
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+[Line 聊天分析](https://weij0.github.io/line-chat-analyzer/)
 
-## Recommended IDE Setup
+這是一個程式 Vue + Tailwind 練習小玩意兒，功能為透過從 Line 電腦或手機版匯出的聊天紀錄檔，  
+以網頁的部分作開啟線上讀檔，透過 JavaScript 的處理將聊天資料加以分析
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+## 目前功能: 
+
+1. 總計訊息數量 (扣除貼圖、圖片、影片)
+2. 總計貼圖數量
+3. 總計圖片數量
+4. 總計影片數量
+
+以上都取出前三名，若是一般聊天就只有兩名，群組或社群會有三名
+其他功能還在想要加什麼。
