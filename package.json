@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.2.47"
+    "dayjs": "^1.11.7",
+    "vue": "^3.2.47",
+    "vuewordcloud": "^19.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.1.0",
