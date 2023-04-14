@@ -4,32 +4,39 @@
       <div class="container mx-auto flex items-center px-5 md:px-0">
         <h1 class="text-2xl md:text-4xl font-bold text-[#40513B]">Line 聊天紀錄分析</h1>
         <label for="txtUpload"
-          class=" md:text-xl text-center bg-[#EDF1D6] text-[#609966] font-bold ml-5 py-2 px-4 rounded
-                                                                                                                      hover:bg-[#40513B] hover:text-[#EDF1D6] cursor-pointer ease-in duration-300">
-          上傳 txt 檔案</label>
+          class="md:text-xl text-center bg-[#EDF1D6] text-[#609966] font-bold ml-5 py-2 px-4 rounded hover:bg-[#40513B] hover:text-[#EDF1D6] cursor-pointer ease-in duration-300">
+          開啟 txt 檔案</label>
         <input class=" hidden" type="file" name="txtUpload" id="txtUpload" @change="$event => uploadFile($event)">
         <span class="hidden md:block text-white text-lg font-bold ml-auto">By WeiJie</span>
       </div>
     </header>
     <main>
-      <div class="container mx-auto py-10">
-        <h2 class="text-xl text-center mb-5 font-bold text-[#40513B]" v-if="txtName != ''">{{ txtName.replace('[LINE]',
-          '').replace('.txt', '') }} 聊天分析
+      <div class="container mx-auto py-10">        
+
+        <h2 class="text-xl text-center mb-5 font-bold text-[#40513B]" v-if="txtName != ''">
+          {{ txtName.replace('[LINE]','').replace('.txt', '') }} 聊天分析
         </h2>
-        <h2 class="text-xl text-center mb-5 font-bold text-[#40513B]" v-else>請先上傳從 Line 匯出 Txt 檔</h2>
+        <h2 class="text-xl text-center mb-5 font-bold text-[#40513B]" v-else>
+          請先上傳從 Line 匯出 Txt 檔
+        </h2>
+
         <template v-if="days.length">
-          <h5 class="text-md text-center font-bold">{{ days[0].day }}~{{ days[days.length - 1].day }} ({{ days.length }}天)
+          <h5 class="text-md text-center font-bold">
+            {{ days[0].day }}~{{ days[days.length - 1].day }} ({{ days.length }}天)
           </h5>
         </template>
+
         <div class="flex flex-wrap">
           <Count title="總計訊息數量" :result="result.messages" :top="tops.messages" icon="fa-comment-dots" />
           <Count title="總計貼圖數量" :result="result.stickers" :top="tops.stickers" icon="fa-sticky-note" />
           <Count title="總計圖片數量" :result="result.images" :top="tops.images" icon="fa-image" />
           <Count title="總計影片數量" :result="result.videos" :top="tops.videos" icon="fa-video" />
         </div>
+
         <template v-if="names.length > 2">
           <wordCloud title="最常發言的人" :words="names" />
         </template>
+
         <template v-if="allMessages.length > 2">
           <wordCloud title="最常說的話" :words="allMessages" />
         </template>
@@ -41,7 +48,6 @@
 <script>
 import Count from './components/Count.vue';
 import wordCloud from './components/wordCloud.vue';
-import * as dayjs from 'dayjs'
 
 export default {
   name: 'App',
@@ -73,9 +79,21 @@ export default {
   },
   methods: {
     uploadFile: function (event) {
-      var file = event.target.files[0];
-      var reader = new FileReader();
+      const file = event.target.files[0];
+      const reader = new FileReader();
 
+      this.clearData();
+
+      this.txtName = event.target.files[0].name;
+
+      reader.onload = (event) => {
+        this.txtContent = event.target.result;
+        this.analyzer();
+      }
+
+      reader.readAsText(file);
+    },
+    clearData() {
       this.txtName = '';
       this.txtContent = '';
       this.days = [];
@@ -92,14 +110,7 @@ export default {
         videos: [],
       };
       this.names = [];
-      this.allMessages =[];
-
-      this.txtName = event.target.files[0].name;
-      reader.onload = function (event) {
-        this.txtContent = event.target.result;
-        this.analyzer();
-      }.bind(this);
-      reader.readAsText(file);
+      this.allMessages = [];
     },
     analyzer() {
       const contents = this.txtContent.split(/[\r\n]+/)
@@ -120,24 +131,26 @@ export default {
       let videos = [];
       let callTimeSecond = 0;
 
+      // 每天的聊天紀錄開頭都會是日期，但電腦版和手機板匯出結果格式不同
       const dateReg = /^\d{4}\.\d{2}\.\d{2}\s[\u4e00-\u9fa5]{3}$/;
       const dateReg2 = /(\d{4}\/\d{1,2}\/\d{1,2})（[^\u4e00-\u9fa5]*?週\S*）/;
+      // 訊息傳送時間格式
       const timeReg = /^([01]\d|2[0-3]):[0-5]\d$/;
 
       let currentDay = '';
 
       const calcCallTimes = (time) => {
-        const timeType = time.split(':').length;
+        const timeArr = time.split(':');
 
-        if (timeType === 2) {
-          callTimeSecond += parseInt(time.split(':')[0]) * 60 + parseInt(time.split(':')[1]);
-        } else if (timeType === 3) {
-          callTimeSecond += parseInt(time.split(':')[0]) * 3600 + parseInt(time.split(':')[1]) * 60 + parseInt(time.split(':')[2]);
-        }
+        if (timeArr.length === 2)  // mm:ss
+          callTimeSecond += parseInt(timeArr[0]) * 60 + parseInt(timeArr[1]);
+        else if (timeArr.length === 3) // hh:mm:ss 
+          callTimeSecond += parseInt(timeArr[0]) * 3600 + parseInt(timeArr[1]) * 60 + parseInt(timeArr[2]);
       }
 
       for (let i = 0; i < contents.length; i++) {
         if (dateReg.test(contents[i]) || dateReg2.test(contents[i])) {
+          // 如果是新的一天，先建立資料結構
           if (currentDay) {
             this.days.push({
               day: currentDay,
@@ -153,30 +166,27 @@ export default {
             videos = [];
           }
           currentDay = contents[i];
+
         } else {
+          // 如果是訊息，則分析內容，判斷開頭是否為時間，如果是代表新訊息，不是代表是上一則訊息內容過多
+
           if (timeReg.test(contents[i].split(/[\t\r\n\s]+/)[0])) {
+
+            // 分析訊息內容
             const contentArray = contents[i].split(/[\t\r\n\s]+/);
             const name = contentArray[1];
             const type = contentArray[contentArray.length - 1].replace('[', '').replace(']', '');
 
             names.push(name);
 
-            if (type == '貼圖')
-              stickers.push(name);
-            else if (type == '圖片' || type == '照片')
-              images.push(name);
-            else if (type == '影片')
-              videos.push(name);
-            else {
-
+            if (type == '貼圖') stickers.push(name);
+            else if (type == '圖片' || type == '照片') images.push(name);
+            else if (type == '影片') videos.push(name);
+            else { //一般訊息
               allMessages.push(type);
               messages.push(name);
-
-              if (contents[i].includes('通話時間')) {
-                calcCallTimes(type);
-              }
+              contents[i].includes('通話時間') && calcCallTimes(type);
             }
-
           } else {
             contents[i - 1] += ' ' + contents[i]; // 將該項目加到上一個項目
             contents.splice(i, 1); // 刪除該項目
